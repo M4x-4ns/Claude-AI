@@ -1,27 +1,30 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/client'
+import { sql } from '@/lib/db'
 
 export async function GET() {
-  const { data, error } = await supabase
-    .from('beans')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order')
-    .order('name')
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  try {
+    const { rows } = await sql`
+      SELECT * FROM beans
+      WHERE is_active = TRUE
+      ORDER BY sort_order, name
+    `
+    return NextResponse.json(rows)
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 })
+  }
 }
 
 export async function POST(req: Request) {
-  const body = await req.json()
+  try {
+    const { name, origin, agtron_score, roast_label, notes, sort_order = 0 } = await req.json()
 
-  const { data, error } = await supabase
-    .from('beans')
-    .insert(body)
-    .select()
-    .single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { status: 201 })
+    const { rows } = await sql`
+      INSERT INTO beans (name, origin, agtron_score, roast_label, notes, sort_order)
+      VALUES (${name}, ${origin ?? null}, ${agtron_score}, ${roast_label ?? null}, ${notes ?? null}, ${sort_order})
+      RETURNING *
+    `
+    return NextResponse.json(rows[0], { status: 201 })
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 })
+  }
 }

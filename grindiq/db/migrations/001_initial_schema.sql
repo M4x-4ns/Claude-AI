@@ -1,6 +1,6 @@
 -- ============================================================
 -- GrindIQ — Initial Schema
--- Run this in Supabase SQL Editor (or via Supabase CLI)
+-- วิธีใช้: Vercel Dashboard → Storage → <database> → Query → วาง SQL นี้แล้วกด Run
 -- ============================================================
 
 -- === Grinders ===
