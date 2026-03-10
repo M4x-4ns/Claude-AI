@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* === GrindIQ Design Tokens === */
+
+  /* Gold */
+  --color-gold:       #C8922A;
+  --color-gold-light: #E8B84B;
+  --color-gold-bg:    #F5DFA0;
+  --color-gold-pill:  #D4A843;
+
+  /* Neutral */
+  --color-bg:         #F5F0E8;
+  --color-surface:    #FFFFFF;
+  --color-text:       #1A1008;
+  --color-subtext:    #8B7355;
+  --color-border:     #E8DDD0;
+
+  /* Brown Scale */
+  --color-brown:       #3D2B1F;
+  --color-brown-mid:   #6B4C35;
+  --color-brown-light: #A07850;
+
+  /* Semantic / Feedback */
+  --color-success:  #6BAF6B;
+  --color-info:     #6B96AF;
+  --color-warning:  #AF6B6B;
+
+  /* Grinder Identity */
+  --color-grinder-a: #C8922A;
+  --color-grinder-b: #8B5E3C;
+  --color-grinder-c: #4A2C1A;
+
+  /* Font */
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-sans:  -apple-system, "Segoe UI", sans-serif;
+
+  /* Spacing */
+  --spacing-xs:  4px;
+  --spacing-sm:  8px;
+  --spacing-md:  12px;
+  --spacing-lg:  18px;
+  --spacing-xl:  22px;
+  --spacing-2xl: 28px;
+
+  /* Radius */
+  --radius-sm:   8px;
+  --radius-md:   14px;
+  --radius-lg:   18px;
+  --radius-xl:   24px;
+  --radius-full: 50px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent text size adjust on tablet */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Tablet-optimized scrolling */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-x::-webkit-scrollbar {
+  display: none;
+}
