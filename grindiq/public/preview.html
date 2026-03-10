@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>GrindIQ — Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #1a1a2e; font-family: -apple-system,"Segoe UI",sans-serif; display: flex; gap: 16px; padding: 20px; overflow-x: auto; }
+
+  /* Phone frame */
+  .frame { flex-shrink: 0; width: 390px; height: 844px; background: #F5F0E8; border-radius: 40px; overflow: hidden; position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 2px #333; display: flex; flex-direction: column; }
+  .frame-label { color: #fff; font-size: 11px; text-align: center; margin-bottom: 8px; opacity: 0.6; letter-spacing: 1px; text-transform: uppercase; }
+  .screen { flex: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* Design tokens */
+  :root {
+    --gold: #C8922A; --gold-light: #E8B84B; --gold-bg: #F5DFA0; --gold-pill: #D4A843;
+    --bg: #F5F0E8; --surface: #fff; --text: #1A1008; --subtext: #8B7355; --border: #E8DDD0;
+    --brown: #3D2B1F; --success: #6BAF6B; --info: #6B96AF; --warning: #AF6B6B;
+    --grinder-a: #C8922A; --grinder-b: #8B5E3C; --grinder-c: #4A2C1A;
+  }
+
+  /* Shared */
+  .serif { font-family: Georgia,"Times New Roman",serif; }
+  .card { background: #fff; border-radius: 18px; border: 1px solid var(--border); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .badge-gold { background: var(--gold-bg); color: var(--gold); }
+  .badge-success { background: #e8f5e8; color: var(--success); }
+  .badge-info { background: #e8f0f5; color: var(--info); }
+  .badge-warning { background: #f5e8e8; color: var(--warning); }
+  .label-xs { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: var(--subtext); }
+
+  /* ===================== SCREEN 1: DASHBOARD ===================== */
+  .dashboard { padding: 0 0 100px; background: var(--bg); min-height: 100%; }
+  .header { padding: 28px 20px 16px; }
+  .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .header h1 { font-size: 22px; font-weight: 800; color: var(--brown); }
+  .sensor-badge { display: flex; align-items: center; gap: 6px; background: var(--gold-bg); padding: 8px 12px; border-radius: 14px; }
+  .sensor-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
+  .sensor-dot.offline { background: var(--warning); box-shadow: none; }
+  .sensor-label { font-size: 9px; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: .5px; }
+  .sensor-val { font-size: 12px; font-weight: 700; color: var(--text); }
+
+  /* Grinder selector */
+  .section { padding: 0 20px; margin-bottom: 16px; }
+  .grinder-row { display: flex; gap: 8px; }
+  .grinder-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 12px 0; border-radius: 50px; border: 1.5px solid transparent; cursor: pointer; transition: all .2s; }
+  .grinder-btn.inactive { background: #fff; border-color: var(--border); }
+  .grinder-btn.inactive .g-letter { color: var(--brown); }
+  .grinder-btn.inactive .g-sub { color: var(--subtext); }
+  .grinder-btn .g-letter { font-size: 15px; font-weight: 800; }
+  .grinder-btn .g-sub { font-size: 9px; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+
+  /* Bean cards */
+  .bean-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+  .bean-scroll::-webkit-scrollbar { display: none; }
+  .bean-card { flex-shrink: 0; width: 120px; border-radius: 20px; overflow: hidden; border: 1.5px solid var(--border); background: #fff; cursor: pointer; }
+  .bean-card.active { box-shadow: 0 4px 18px rgba(200,146,42,.35); }
+  .bean-img { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 38px; }
+  .bean-info { padding: 8px; }
+  .bean-name { font-family: Georgia,serif; font-size: 11px; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 4px; }
+  .bean-origin { font-size: 9px; color: var(--subtext); margin-bottom: 4px; }
+
+  /* Hero number */
+  .hero-card { margin: 0 20px; background: #fff; border-radius: 24px; border: 1.5px solid var(--gold-bg); box-shadow: 0 6px 30px rgba(200,146,42,.15); padding: 28px 24px; text-align: center; position: relative; overflow: hidden; margin-bottom: 16px; }
+  .hero-deco { position: absolute; top: -32px; right: -32px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle,#C8922A,transparent); opacity: .1; pointer-events: none; }
+  .hero-coffee { position: absolute; bottom: 10px; right: 16px; font-size: 44px; opacity: .06; pointer-events: none; }
+  .hero-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; color: var(--subtext); margin-bottom: 8px; }
+  .hero-num { font-family: Georgia,serif; font-size: 80px; font-weight: 900; color: var(--gold); line-height: 1; }
+  .hero-empty { font-family: Georgia,serif; font-size: 24px; color: var(--border); }
+
+  /* Breakdown */
+  .breakdown { margin: 0 20px 16px; }
+  .breakdown-inner { background: #fff; border-radius: 18px; border: 1px solid var(--border); padding: 4px 16px; }
+  .adj-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #F5F0E8; }
+  .adj-row:last-child { border-bottom: none; }
+  .adj-label { font-size: 12px; font-weight: 600; color: var(--brown); }
+  .adj-hint { font-size: 10px; color: var(--subtext); margin-top: 2px; }
+  .adj-val { font-size: 15px; font-weight: 700; }
+  .adj-neg { color: var(--success); }
+  .adj-pos { color: var(--warning); }
+  .adj-zero { color: var(--subtext); }
+
+  /* Feedback */
+  .feedback-row { display: flex; gap: 8px; margin: 0 20px; }
+  .fb-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 0; border-radius: 16px; border: 1.5px solid var(--border); background: #fff; cursor: pointer; }
+  .fb-btn.active-under { background: #e8f0f5; border-color: var(--info); }
+  .fb-btn.active-perfect { background: #e8f5e8; border-color: var(--success); }
+  .fb-btn.active-over { background: #f5e8e8; border-color: var(--warning); }
+  .fb-icon { font-size: 20px; }
+  .fb-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--subtext); }
+
+  /* Bottom nav */
+  .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 16px 20px; }
+  .nav-pill { background: var(--gold-pill); border-radius: 50px; padding: 6px; display: flex; gap: 4px; box-shadow: 0 4px 20px rgba(212,168,67,.45); }
+  .nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border-radius: 50px; }
+  .nav-tab.active { background: #fff; }
+  .nav-icon { font-size: 18px; line-height: 1; }
+  .nav-tab.active .nav-icon { color: var(--gold); }
+  .nav-tab:not(.active) .nav-icon { color: rgba(255,255,255,.9); }
+  .nav-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .nav-tab.active .nav-label { color: var(--gold); }
+  .nav-tab:not(.active) .nav-label { color: rgba(255,255,255,.8); }
+
+  /* ===================== SCREEN 2: SETTINGS ===================== */
+  .settings-page { padding: 0 0 100px; background: var(--bg); min-height: 100%; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+  .toggle { width: 48px; height: 26px; border-radius: 50px; background: var(--gold); position: relative; }
+  .toggle-knob { position: absolute; top: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,.2); left: 25px; }
+  .input-field { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--text); background: var(--bg); }
+  .range-row { display: flex; align-items: center; gap: 8px; }
+  .range-track { flex: 1; height: 4px; background: var(--border); border-radius: 4px; position: relative; }
+  .range-fill { width: 35%; height: 100%; background: var(--gold); border-radius: 4px; }
+  .range-thumb { position: absolute; right: 65%; top: 50%; transform: translate(50%,-50%); width: 16px; height: 16px; background: var(--gold); border-radius: 50%; box-shadow: 0 2px 6px rgba(200,146,42,.5); }
+  .save-btn { display: block; width: calc(100% - 40px); margin: 16px 20px; padding: 16px; border-radius: 50px; background: var(--gold); color: #fff; font-size: 15px; font-weight: 700; text-align: center; }
+
+  /* ===================== SCREEN 3: SHOT LOG ===================== */
+  .log-page { padding: 0 0 100px; background: var(--bg); min-height: 100%; }
+  .stats-card { margin: 0 20px 16px; background: #fff; border-radius: 16px; border: 1px solid var(--border); padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; }
+  .stat-num { font-family: Georgia,serif; font-size: 22px; font-weight: 900; }
+  .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: .5px; color: var(--subtext); margin-top: 2px; }
+  .shot-card { margin: 0 20px 8px; background: #fff; border-radius: 18px; border: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .shot-meta { font-size: 9px; color: var(--subtext); margin-bottom: 4px; }
+  .shot-bean { font-family: Georgia,serif; font-size: 14px; font-weight: 700; color: var(--text); }
+  .shot-env { font-size: 10px; color: #A07850; margin-top: 4px; }
+  .shot-grind { font-family: Georgia,serif; font-size: 28px; font-weight: 900; color: var(--gold); text-align: right; }
+
+  /* ===================== SCREEN 4: BEANS ===================== */
+  .beans-page { padding: 0 0 100px; background: var(--bg); min-height: 100%; }
+  .bean-list-item { margin: 0 20px 8px; background: #fff; border-radius: 18px; border: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .bean-list-name { font-family: Georgia,serif; font-size: 15px; font-weight: 700; color: var(--text); }
+  .bean-list-origin { font-size: 11px; color: var(--subtext); margin-top: 2px; }
+
+  /* Page labels */
+  .page-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .page-nav button { padding: 6px 14px; border-radius: 50px; border: 1.5px solid #444; background: transparent; color: #aaa; font-size: 11px; cursor: pointer; }
+  .page-nav button.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: DASHBOARD -->
+<div style="display:flex;flex-direction:column;align-items:center">
+  <div class="frame-label">Dashboard · /home</div>
+  <div class="frame">
+    <div class="screen dashboard">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-row">
+          <h1 class="serif">GrindIQ</h1>
+          <div class="sensor-badge">
+            <span class="sensor-dot"></span>
+            <span class="sensor-label">ESP32</span>
+            <span class="sensor-val">27.4°C</span>
+            <span style="font-size:9px;color:var(--subtext)">·</span>
+            <span class="sensor-val">65%</span>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--subtext)">Select grinder and bean to get your grind setting</p>
+      </div>
+
+      <!-- Grinder selector -->
+      <div class="section">
+        <p class="label-xs" style="margin-bottom:8px">Grinder</p>
+        <div class="grinder-row">
+          <div class="grinder-btn" style="background:var(--grinder-a)">
+            <span class="g-letter" style="color:#fff;font-family:Georgia,serif">A</span>
+            <span class="g-sub" style="color:rgba(255,255,255,.8)">Light</span>
+          </div>
+          <div class="grinder-btn inactive">
+            <span class="g-letter serif">B</span>
+            <span class="g-sub">Medium</span>
+          </div>
+          <div class="grinder-btn inactive">
+            <span class="g-letter serif">C</span>
+            <span class="g-sub">Dark</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bean selector -->
+      <div class="section">
+        <p class="label-xs" style="margin-bottom:8px">Bean</p>
+        <div class="bean-scroll">
+          <div class="bean-card active" style="border-color:var(--grinder-a)">
+            <div class="bean-img" style="background:linear-gradient(135deg,#C8922A33,#C8922A11)">☕</div>
+            <div class="bean-info">
+              <div class="bean-name">Ethiopia Yirgacheffe</div>
+              <div class="bean-origin">Ethiopia</div>
+              <span class="badge badge-gold">Light · 72</span>
+            </div>
+          </div>
+          <div class="bean-card">
+            <div class="bean-img" style="background:linear-gradient(135deg,#C8922A22,#C8922A08)">☕</div>
+            <div class="bean-info">
+              <div class="bean-name">Colombia Huila</div>
+              <div class="bean-origin">Colombia</div>
+              <span class="badge badge-gold">Med · 58</span>
+            </div>
+          </div>
+          <div class="bean-card">
+            <div class="bean-img" style="background:linear-gradient(135deg,#C8922A22,#C8922A08)">☕</div>
+            <div class="bean-info">
+              <div class="bean-name">Brazil Santos</div>
+              <div class="bean-origin">Brazil</div>
+              <span class="badge badge-gold">Med-D · 48</span>
+            </div>
+          </div>
+          <div class="bean-card">
+            <div class="bean-img" style="background:linear-gradient(135deg,#C8922A22,#C8922A08)">☕</div>
+            <div class="bean-info">
+              <div class="bean-name">Sumatra Mandheling</div>
+              <div class="bean-origin">Indonesia</div>
+              <span class="badge badge-warning">Dark · 40</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero number -->
+      <div class="hero-card">
+        <div class="hero-deco"></div>
+        <div class="hero-coffee">☕</div>
+        <div class="hero-label">Grinder A · Light Roast</div>
+        <div class="hero-num">17</div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown">
+        <p class="label-xs" style="margin-bottom:8px">Adjustment Breakdown</p>
+        <div class="breakdown-inner">
+          <div class="adj-row">
+            <div><div class="adj-label">Baseline</div><div class="adj-hint">Starting at 18</div></div>
+            <span class="adj-val adj-zero">±0</span>
+          </div>
+          <div class="adj-row">
+            <div><div class="adj-label">Temperature</div><div class="adj-hint">Warmer → coarser</div></div>
+            <span class="adj-val adj-pos">+0.36</span>
+          </div>
+          <div class="adj-row">
+            <div><div class="adj-label">Humidity</div><div class="adj-hint">More humid → coarser</div></div>
+            <span class="adj-val adj-pos">+0.25</span>
+          </div>
+          <div class="adj-row">
+            <div><div class="adj-label">Roast (Agtron)</div><div class="adj-hint">Light roast — grind finer</div></div>
+            <span class="adj-val adj-neg">-0.5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <p class="label-xs" style="margin-bottom:8px">Shot Result</p>
+        <div class="feedback-row" style="margin:0">
+          <div class="fb-btn">
+            <span class="fb-icon" style="color:var(--info)">↓</span>
+            <span class="fb-label" style="color:var(--info)">Under</span>
+          </div>
+          <div class="fb-btn active-perfect">
+            <span class="fb-icon" style="color:var(--success)">✓</span>
+            <span class="fb-label" style="color:var(--success)">Perfect</span>
+          </div>
+          <div class="fb-btn">
+            <span class="fb-icon" style="color:var(--warning)">↑</span>
+            <span class="fb-label" style="color:var(--warning)">Over</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <div class="nav-pill">
+        <div class="nav-tab active"><span class="nav-icon">⌂</span><span class="nav-label">Home</span></div>
+        <div class="nav-tab"><span class="nav-icon">✦</span><span class="nav-label">Beans</span></div>
+        <div class="nav-tab"><span class="nav-icon">◈</span><span class="nav-label">Shot Log</span></div>
+        <div class="nav-tab"><span class="nav-icon">◎</span><span class="nav-label">Settings</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 2: SHOT LOG -->
+<div style="display:flex;flex-direction:column;align-items:center">
+  <div class="frame-label">Shot Log · /log</div>
+  <div class="frame">
+    <div class="screen log-page">
+      <div class="header">
+        <h1 class="serif">Shot Log</h1>
+        <p style="font-size:12px;color:var(--subtext);margin-top:4px">24 shots recorded</p>
+      </div>
+
+      <div class="stats-card">
+        <div><div class="stat-num" style="color:var(--success)">83%</div><div class="stat-label">Perfect</div></div>
+        <div><div class="stat-num" style="color:var(--text)">24</div><div class="stat-label">Total</div></div>
+        <div><div class="stat-num" style="color:var(--gold)">20</div><div class="stat-label">Perfect shots</div></div>
+      </div>
+
+      <div class="shot-card">
+        <div>
+          <div class="shot-meta">Grinder A · 3 มี.ค. 10:42</div>
+          <div class="shot-bean">Ethiopia Yirgacheffe</div>
+          <div class="shot-env">27.4°C · 65%</div>
+        </div>
+        <div>
+          <div class="shot-grind">17</div>
+          <span class="badge badge-success">✓ Perfect</span>
+        </div>
+      </div>
+      <div class="shot-card">
+        <div>
+          <div class="shot-meta">Grinder B · 3 มี.ค. 10:28</div>
+          <div class="shot-bean">Colombia Huila</div>
+          <div class="shot-env">27.1°C · 64%</div>
+        </div>
+        <div>
+          <div class="shot-grind">22.3</div>
+          <span class="badge badge-success">✓ Perfect</span>
+        </div>
+      </div>
+      <div class="shot-card">
+        <div>
+          <div class="shot-meta">Grinder A · 3 มี.ค. 09:55</div>
+          <div class="shot-bean">Ethiopia Yirgacheffe</div>
+          <div class="shot-env">26.8°C · 63%</div>
+        </div>
+        <div>
+          <div class="shot-grind">17</div>
+          <span class="badge badge-info">↓ Under</span>
+        </div>
+      </div>
+      <div class="shot-card">
+        <div>
+          <div class="shot-meta">Grinder C · 3 มี.ค. 09:30</div>
+          <div class="shot-bean">Sumatra Mandheling</div>
+          <div class="shot-env">26.5°C · 62%</div>
+        </div>
+        <div>
+          <div class="shot-grind">27</div>
+          <span class="badge badge-success">✓ Perfect</span>
+        </div>
+      </div>
+      <div class="shot-card">
+        <div>
+          <div class="shot-meta">Grinder B · 3 มี.ค. 09:10</div>
+          <div class="shot-bean">Guatemala Antigua</div>
+          <div class="shot-env">25.9°C · 60%</div>
+        </div>
+        <div>
+          <div class="shot-grind">22.1</div>
+          <span class="badge badge-warning">↑ Over</span>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-pill">
+        <div class="nav-tab"><span class="nav-icon">⌂</span><span class="nav-label">Home</span></div>
+        <div class="nav-tab"><span class="nav-icon">✦</span><span class="nav-label">Beans</span></div>
+        <div class="nav-tab active"><span class="nav-icon">◈</span><span class="nav-label">Shot Log</span></div>
+        <div class="nav-tab"><span class="nav-icon">◎</span><span class="nav-label">Settings</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: SETTINGS -->
+<div style="display:flex;flex-direction:column;align-items:center">
+  <div class="frame-label">Settings · /settings</div>
+  <div class="frame">
+    <div class="screen settings-page">
+      <div class="header">
+        <h1 class="serif">Settings</h1>
+        <p style="font-size:12px;color:var(--subtext);margin-top:4px">Sensor and grinder configuration</p>
+      </div>
+
+      <div class="section">
+        <p class="label-xs" style="margin-bottom:8px">ESP32 Sensor</p>
+        <div class="card" style="padding:16px;gap:16px;display:flex;flex-direction:column">
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--text)">Manual mode</div>
+              <div style="font-size:11px;color:var(--subtext);margin-top:2px">Use manual values instead of sensor</div>
+            </div>
+            <div class="toggle"><div class="toggle-knob"></div></div>
+          </div>
+          <div>
+            <div class="label-xs" style="margin-bottom:6px">ESP32 URL</div>
+            <div class="input-field" style="color:var(--subtext)">http://192.168.1.42</div>
+            <p style="font-size:10px;color:#A07850;margin-top:4px">Must be on the same WiFi as this tablet</p>
+          </div>
+          <div>
+            <div class="label-xs" style="margin-bottom:8px">Poll interval: 30s</div>
+            <div class="range-row">
+              <div class="range-track">
+                <div class="range-fill"></div>
+                <div class="range-thumb"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <p class="label-xs" style="margin-bottom:8px">About</p>
+        <div class="card" style="padding:12px 16px">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">GrindIQ</div>
+          <div style="font-size:11px;color:var(--subtext)">Smart grind calculator · v1.0</div>
+          <div style="font-size:10px;color:#A07850;margin-top:8px">Formula: Baseline ± ΔTemp(×0.15) ± ΔHumidity(×0.05) ± ΔAgtron(±0.5)</div>
+        </div>
+      </div>
+
+      <div class="save-btn">Save Settings</div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-pill">
+        <div class="nav-tab"><span class="nav-icon">⌂</span><span class="nav-label">Home</span></div>
+        <div class="nav-tab"><span class="nav-icon">✦</span><span class="nav-label">Beans</span></div>
+        <div class="nav-tab"><span class="nav-icon">◈</span><span class="nav-label">Shot Log</span></div>
+        <div class="nav-tab active"><span class="nav-icon">◎</span><span class="nav-label">Settings</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 4: BEANS -->
+<div style="display:flex;flex-direction:column;align-items:center">
+  <div class="frame-label">Bean Profiles · /beans</div>
+  <div class="frame">
+    <div class="screen beans-page">
+      <div class="header">
+        <h1 class="serif">Bean Profiles</h1>
+        <p style="font-size:12px;color:var(--subtext);margin-top:4px">5 beans configured</p>
+      </div>
+
+      <div class="bean-list-item card">
+        <div style="flex:1">
+          <div class="bean-list-name">Ethiopia Yirgacheffe</div>
+          <div class="bean-list-origin">Ethiopia</div>
+        </div>
+        <div style="text-align:right">
+          <span class="badge badge-info">Agtron 72</span>
+          <div style="font-size:10px;color:var(--subtext);margin-top:4px">Light</div>
+        </div>
+      </div>
+      <div class="bean-list-item card">
+        <div style="flex:1">
+          <div class="bean-list-name">Colombia Huila</div>
+          <div class="bean-list-origin">Colombia</div>
+        </div>
+        <div style="text-align:right">
+          <span class="badge badge-gold">Agtron 58</span>
+          <div style="font-size:10px;color:var(--subtext);margin-top:4px">Medium</div>
+        </div>
+      </div>
+      <div class="bean-list-item card">
+        <div style="flex:1">
+          <div class="bean-list-name">Brazil Santos</div>
+          <div class="bean-list-origin">Brazil</div>
+        </div>
+        <div style="text-align:right">
+          <span class="badge badge-gold">Agtron 48</span>
+          <div style="font-size:10px;color:var(--subtext);margin-top:4px">Medium-Dark</div>
+        </div>
+      </div>
+      <div class="bean-list-item card">
+        <div style="flex:1">
+          <div class="bean-list-name">Sumatra Mandheling</div>
+          <div class="bean-list-origin">Indonesia</div>
+        </div>
+        <div style="text-align:right">
+          <span class="badge badge-warning">Agtron 40</span>
+          <div style="font-size:10px;color:var(--subtext);margin-top:4px">Dark</div>
+        </div>
+      </div>
+      <div class="bean-list-item card">
+        <div style="flex:1">
+          <div class="bean-list-name">Guatemala Antigua</div>
+          <div class="bean-list-origin">Guatemala</div>
+        </div>
+        <div style="text-align:right">
+          <span class="badge badge-gold">Agtron 62</span>
+          <div style="font-size:10px;color:var(--subtext);margin-top:4px">Medium</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-pill">
+        <div class="nav-tab"><span class="nav-icon">⌂</span><span class="nav-label">Home</span></div>
+        <div class="nav-tab active"><span class="nav-icon">✦</span><span class="nav-label">Beans</span></div>
+        <div class="nav-tab"><span class="nav-icon">◈</span><span class="nav-label">Shot Log</span></div>
+        <div class="nav-tab"><span class="nav-icon">◎</span><span class="nav-label">Settings</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
