@@ -2,7 +2,7 @@
   "mcpServers": {
     "vercel": {
       "command": "npx",
-      "args": ["-y", "@vercel/mcp-adapter"],
+      "args": ["-y", "@robinson_ai_systems/vercel-mcp"],
       "env": {
         "VERCEL_TOKEN": "${VERCEL_TOKEN}"
       }
